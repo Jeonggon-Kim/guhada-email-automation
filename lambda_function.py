@@ -20,6 +20,33 @@ email_processor = EmailProcessor()
 # Ensure email processor uses the configured graph client
 email_processor.graph_client = graph_client
 
+# Initialize DynamoDB for idempotency check
+import boto3
+from botocore.exceptions import ClientError
+from datetime import datetime
+dynamodb = boto3.resource('dynamodb', region_name='ap-northeast-2')
+table = dynamodb.Table(os.environ.get('DYNAMODB_TABLE', 'EmailBot_Tokens'))
+
+def is_duplicate_request(message_id):
+    """Check if message is already processed using DynamoDB"""
+    try:
+        # Try to create a lock item
+        # We use the same table but prefix the key with 'processed_'
+        table.put_item(
+            Item={
+                'token_id': f'processed_{message_id}', 
+                'created_at': datetime.utcnow().isoformat(),
+                # TTL is optional, but good practice. DynamoDB needs TTL enabled on a field to work.
+                # For now, we just store it.
+            },
+            ConditionExpression='attribute_not_exists(token_id)'
+        )
+        return False # Successfully locked, not a duplicate
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
+            return True # Already exists
+        raise e
+
 def lambda_handler(event, context):
     """
     AWS Lambda Handler
@@ -110,6 +137,11 @@ def lambda_handler(event, context):
                     message_id = resource_data.get('id')
                     
                     if message_id:
+                        # 🛡️ DUPLICATE CHECK
+                        if is_duplicate_request(message_id):
+                            logger.info(f"Duplicate request for {message_id}, ignoring.")
+                            continue
+
                         logger.info(f"Processing email: {message_id}")
                         result = email_processor.process_email(message_id)
                         logger.info(f"Process result: {result}")
