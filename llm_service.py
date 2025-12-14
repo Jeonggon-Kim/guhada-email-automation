@@ -30,24 +30,31 @@ class LLMService:
             raise
     
     def _create_prompt(self, subject, body, sender):
-        """Create a prompt for Gemini"""
-        return f"""You are an AI assistant helping to draft professional email replies for K Glowing company.
-
-Email Details:
-- From: {sender}
-- Subject: {subject}
-- Body:
-{body}
-
-Please generate a professional, courteous, and helpful reply to this email. 
-The reply should:
-1. Address the sender's concerns or questions
-2. Be concise and clear
-3. Maintain a professional tone appropriate for K Glowing
-4. Include appropriate greetings and closing
-
-Generate ONLY the email body content (no subject line). Format the response in HTML for better presentation.
-"""
+        """Create a prompt for Gemini from file"""
+        try:
+            import os
+            # Handle path for both local and Lambda environment
+            base_path = os.path.dirname(os.path.abspath(__file__))
+            prompt_path = os.path.join(base_path, 'prompts', 'email_reply.txt')
+            
+            with open(prompt_path, 'r', encoding='utf-8') as f:
+                template = f.read()
+            
+            # Fill in the template
+            return template.format(
+                sender=sender,
+                subject=subject,
+                body=body
+            )
+        except Exception as e:
+            print(f"Error reading prompt file: {e}")
+            # Fallback prompt just in case
+            return f"""
+            You are an AI assistant. Please draft a reply to this email:
+            From: {sender}
+            Subject: {subject}
+            Body: {body}
+            """
 
 # Singleton instance
 llm_service = LLMService()

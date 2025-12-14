@@ -28,7 +28,7 @@ jobs:
         run: |
           echo "📦 Packaging Function..."
           # Zip only source code (no dependencies)
-          zip -r function.zip lambda_function.py auth_provider_aws.py graph_client.py email_processor.py llm_service.py config.py
+          zip -r function.zip lambda_function.py auth_provider_aws.py graph_client.py email_processor.py llm_service.py config.py prompts/
 
       - name: Deploy Lambda Function
         run: |
