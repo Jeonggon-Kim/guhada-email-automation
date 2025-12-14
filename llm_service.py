@@ -9,10 +9,10 @@ class LLMService:
         genai.configure(api_key=config.GEMINI_API_KEY)
         self.model = genai.GenerativeModel(config.GEMINI_MODEL)
     
-    def generate_reply(self, email_subject, email_body, sender_email):
+    def generate_reply(self, email_subject, email_body, sender_email, thread_history=""):
         """Generate a reply to an email using Gemini"""
         
-        prompt = self._create_prompt(email_subject, email_body, sender_email)
+        prompt = self._create_prompt(email_subject, email_body, sender_email, thread_history)
         
         try:
             response = self.model.generate_content(
@@ -29,7 +29,7 @@ class LLMService:
             print(f"Error generating reply with Gemini: {str(e)}")
             raise
     
-    def _create_prompt(self, subject, body, sender):
+    def _create_prompt(self, subject, body, sender, thread_history=""):
         """Create a prompt for Gemini"""
         try:
             from prompts.email_reply import EMAIL_REPLY_PROMPT
@@ -38,7 +38,8 @@ class LLMService:
             return EMAIL_REPLY_PROMPT.format(
                 sender=sender,
                 subject=subject,
-                body=body
+                body=body,
+                thread_history=thread_history if thread_history else "No previous conversation."
             )
         except Exception as e:
             print(f"Error creating prompt: {e}")

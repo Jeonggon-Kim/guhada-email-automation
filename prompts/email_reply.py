@@ -3,8 +3,12 @@ EMAIL_REPLY_PROMPT = """You are an AI assistant helping to draft professional em
 Email Details:
 - From: {sender}
 - Subject: {subject}
-- Body:
+
+Current Message Body:
 {body}
+
+Previous Conversation History (Context):
+{thread_history}
 
 Please generate a professional, courteous, and helpful reply to this email. 
 The reply should:

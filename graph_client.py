@@ -114,5 +114,17 @@ class GraphClient:
         response.raise_for_status()
         return response.json().get('value', [])
 
+    def get_conversation_threads(self, conversation_id):
+        """Get all messages in a conversation thread"""
+        url = f'{self.BASE_URL}/me/messages'
+        params = {
+            '$filter': f"conversationId eq '{conversation_id}'",
+            '$orderby': 'receivedDateTime asc', # Oldest first for chronological context
+            '$select': 'sender,subject,body,receivedDateTime,from'
+        }
+        response = requests.get(url, headers=self._get_headers(), params=params)
+        response.raise_for_status()
+        return response.json().get('value', [])
+
 # Singleton instance
 graph_client = GraphClient()
