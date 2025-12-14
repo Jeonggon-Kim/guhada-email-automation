@@ -58,7 +58,15 @@ class GraphClient:
         draft_id = draft['id']
         update_url = f'{self.BASE_URL}/me/messages/{draft_id}'
         
+        # Force the correct sender address
+        import config
+        
         update_data = {
+            'from': {
+                'emailAddress': {
+                    'address': config.USER_EMAIL
+                }
+            },
             'body': {
                 'contentType': 'HTML',
                 'content': reply_content
