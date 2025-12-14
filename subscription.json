@@ -1,0 +1,18 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#subscriptions/$entity",
+  "id": "3b2e5f8d-1765-4cd7-9fc4-e69a75b9f4b5",
+  "resource": "/me/mailFolders/inbox/messages",
+  "applicationId": "9cba057d-c669-41b1-b8d0-738c00062bd9",
+  "changeType": "created",
+  "clientState": "SecretClientState",
+  "notificationUrl": "https://530dcdfa9ea1.ngrok-free.app/webhook",
+  "notificationQueryOptions": null,
+  "lifecycleNotificationUrl": null,
+  "expirationDateTime": "2025-12-16T11:45:32Z",
+  "creatorId": "0003BFFDFEF31023",
+  "includeResourceData": null,
+  "latestSupportedTlsVersion": "v1_2",
+  "encryptionCertificate": null,
+  "encryptionCertificateId": null,
+  "notificationUrlAppId": null
+}
