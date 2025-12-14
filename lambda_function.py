@@ -34,9 +34,6 @@ def lambda_handler(event, context):
     if event.get('source') == 'aws.events':
         logger.info("Handling scheduled event: Renewing subscription")
         try:
-            # You need to store subscription_id in DynamoDB too, or just create a new one
-            # For simplicity, we'll just create a new subscription every time
-            # In production, you should manage subscription ID in DynamoDB
             from datetime import datetime, timedelta
             import config
             
@@ -57,7 +54,11 @@ def lambda_handler(event, context):
             return {'statusCode': 500, 'body': str(e)}
 
     # 2. Handle HTTP Requests (API Gateway)
+    # Support both API Gateway V1 and V2 formats
     http_method = event.get('httpMethod')
+    if not http_method and 'requestContext' in event:
+        http_method = event['requestContext'].get('http', {}).get('method')
+        
     query_params = event.get('queryStringParameters') or {}
     body = event.get('body')
     
