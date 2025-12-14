@@ -1,4 +1,4 @@
-You are an AI assistant helping to draft professional email replies for K Glowing company.
+EMAIL_REPLY_PROMPT = """You are an AI assistant helping to draft professional email replies for K Glowing company.
 
 Email Details:
 - From: {sender}
@@ -14,3 +14,4 @@ The reply should:
 4. Include appropriate greetings and closing
 
 Generate ONLY the email body content (no subject line). Format the response in HTML for better presentation.
+"""

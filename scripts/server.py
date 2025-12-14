@@ -1,3 +1,8 @@
+import sys
+import os
+# Add parent directory to path to import modules
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from flask import Flask, request, jsonify, redirect
 from auth_provider import auth_provider
 from email_processor import email_processor

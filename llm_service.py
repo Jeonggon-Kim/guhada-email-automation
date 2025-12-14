@@ -30,24 +30,18 @@ class LLMService:
             raise
     
     def _create_prompt(self, subject, body, sender):
-        """Create a prompt for Gemini from file"""
+        """Create a prompt for Gemini"""
         try:
-            import os
-            # Handle path for both local and Lambda environment
-            base_path = os.path.dirname(os.path.abspath(__file__))
-            prompt_path = os.path.join(base_path, 'prompts', 'email_reply.txt')
-            
-            with open(prompt_path, 'r', encoding='utf-8') as f:
-                template = f.read()
+            from prompts.email_reply import EMAIL_REPLY_PROMPT
             
             # Fill in the template
-            return template.format(
+            return EMAIL_REPLY_PROMPT.format(
                 sender=sender,
                 subject=subject,
                 body=body
             )
         except Exception as e:
-            print(f"Error reading prompt file: {e}")
+            print(f"Error creating prompt: {e}")
             # Fallback prompt just in case
             return f"""
             You are an AI assistant. Please draft a reply to this email:
