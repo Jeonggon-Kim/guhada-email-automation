@@ -107,5 +107,12 @@ class GraphClient:
         response.raise_for_status()
         return True
 
+    def list_subscriptions(self):
+        """List all active subscriptions"""
+        url = f'{self.BASE_URL}/subscriptions'
+        response = requests.get(url, headers=self._get_headers())
+        response.raise_for_status()
+        return response.json().get('value', [])
+
 # Singleton instance
 graph_client = GraphClient()

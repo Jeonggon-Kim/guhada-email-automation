@@ -44,10 +44,29 @@ def lambda_handler(event, context):
             if not notification_url:
                 raise Exception("WEBHOOK_URL environment variable is missing")
                 
-            # Create/Renew subscription
-            sub = graph_client.subscribe_to_inbox(notification_url, expiration_str)
-            logger.info(f"Subscription renewed: {sub['id']}")
-            return {'statusCode': 200, 'body': 'Subscription renewed'}
+            # Smart Renewal Logic
+            # 1. List existing subscriptions
+            existing_subs = graph_client.list_subscriptions()
+            target_sub = None
+            
+            # 2. Find subscription with matching URL
+            for sub in existing_subs:
+                if sub.get('notificationUrl') == notification_url:
+                    target_sub = sub
+                    break
+            
+            if target_sub:
+                # 3a. Renew existing
+                logger.info(f"Found existing subscription {target_sub['id']}, renewing...")
+                sub = graph_client.renew_subscription(target_sub['id'], expiration_str)
+                logger.info(f"Subscription renewed: {sub['id']}")
+                return {'statusCode': 200, 'body': f"Renewed: {sub['id']}"}
+            else:
+                # 3b. Create new
+                logger.info("No existing subscription found, creating new...")
+                sub = graph_client.subscribe_to_inbox(notification_url, expiration_str)
+                logger.info(f"Subscription created: {sub['id']}")
+                return {'statusCode': 200, 'body': f"Created: {sub['id']}"}
             
         except Exception as e:
             logger.error(f"Failed to renew subscription: {str(e)}")
