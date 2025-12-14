@@ -14,6 +14,11 @@ class LLMService:
         
         prompt = self._create_prompt(email_subject, email_body, sender_email, thread_history)
         
+        # Log the full prompt for debugging
+        print("\n" + "="*30 + " FULL PROMPT TO GEMINI " + "="*30)
+        print(prompt)
+        print("="*83 + "\n")
+        
         try:
             response = self.model.generate_content(
                 prompt,
