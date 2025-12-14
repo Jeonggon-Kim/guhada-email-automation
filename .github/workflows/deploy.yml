@@ -24,30 +24,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      - name: Create Lambda Layer (Dependencies)
-        run: |
-          echo "📦 Creating Layer..."
-          mkdir -p layer/python
-          # Install dependencies for Linux (Lambda environment)
-          pip install -r requirements.txt -t layer/python --platform manylinux2014_x86_64 --implementation cp --python-version 3.12 --only-binary=:all: --upgrade
-          
-          # Remove boto3 (Built-in to Lambda) to save space
-          rm -rf layer/python/boto3 layer/python/botocore
-          
-          # Zip Layer
-          cd layer
-          zip -r ../layer.zip python
-          cd ..
-
-      - name: Publish Layer
-        id: publish_layer
-        run: |
-          echo "🚀 Publishing Layer..."
-          LAYER_VERSION=$(aws lambda publish-layer-version --layer-name EmailBot_Dependencies --zip-file fileb://layer.zip --compatible-runtimes python3.12 --query Version --output text)
-          LAYER_ARN=$(aws lambda get-layer-version --layer-name EmailBot_Dependencies --version-number $LAYER_VERSION --query LayerVersionArn --output text)
-          echo "LAYER_ARN=$LAYER_ARN" >> $GITHUB_ENV
-          echo "Created Layer: $LAYER_ARN"
-
       - name: Package Function Code
         run: |
           echo "📦 Packaging Function..."
@@ -57,13 +33,7 @@ jobs:
       - name: Deploy Lambda Function
         run: |
           echo "🚀 Deploying Function..."
-          # Update Code
+          # Update Code Only
           aws lambda update-function-code --function-name EmailAutomationBot --zip-file fileb://function.zip
-          
-          # Wait for update to complete
-          sleep 10
-          
-          # Update Configuration to use new Layer
-          aws lambda update-function-configuration --function-name EmailAutomationBot --layers $LAYER_ARN
           
           echo "✅ Deployment Complete!"
